@@ -1,4 +1,0 @@
-{ "name":"agrotwin-backend","type":"module","private":true,
-  "scripts":{"start":"prisma migrate deploy && node src/index.js","dev":"node --watch src/index.js","build":"prisma generate && prisma migrate deploy","seed":"node prisma/seed.js"},
-  "dependencies":{"@prisma/client":"^5.22.0","prisma":"^5.22.0","express":"^4.21.0","helmet":"^7.1.0","morgan":"^1.10.0",
-    "jsonwebtoken":"^9.0.2","bcryptjs":"^2.4.3","zod":"^3.23.8","express-rate-limit":"^7.4.0"} }

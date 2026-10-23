@@ -1,5 +1,5 @@
-// Backend tiruan yang berjalan di browser, dipakai untuk GitHub Pages (hanya hosting statis).
-// Meniru endpoint API asli: autentikasi, produksi, digital twin, prediksi, dan simulasi. Data disimpan di localStorage.
+// Data dan backend tiruan yang berjalan di browser (GitHub Pages hanya hosting statis).
+// Akun demo, produksi, digital twin, prediksi, dan simulasi. Data disimpan di localStorage.
 const KOP = [[1,"Koperasi Tani Makmur","Indonesia",-7.25,112.75],[2,"Koperasi Mekar Sari","Indonesia",-5.4,105.25],
   [3,"Chiang Mai Fruit Co-op","Thailand",18.79,98.98],[4,"Mekong Delta Growers","Vietnam",10.04,105.78],
   [5,"Perak Agro Koperasi","Malaysia",4.6,101.08],[6,"Davao Harvest Union","Filipina",7.19,125.46]]
@@ -27,7 +27,7 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(mem)); } cat
 const fail = (m, c) => Object.assign(new Error(m), { status:c });
 const scope = u => (u.role === "ADMIN" ? null : u.koperasiId);
 
-export function buildTwin(sc) {
+function buildTwin(sc) {
   const S = load(), now = Date.now(), d30 = now - 30*864e5, d7 = now - 7*864e5, sum = a => a.reduce((x, r) => x + r.jumlahKg, 0);
   const nodes = KOP.filter(k => !sc || k.id === sc).map(k => {
     const rows = S.produksi.filter(r => r.koperasiId === k.id), produksiKg = sum(rows.filter(r => +new Date(r.tanggal) >= d30)),
@@ -41,7 +41,7 @@ export function buildTwin(sc) {
     routes:dist.map(x => { const k = KOP.find(q => q.id === x.koperasiId);
       return { id:x.id, dari:{ lat:k.lat, lng:k.lng }, tujuan:x.tujuan, tujuanLat:x.tujuanLat, tujuanLng:x.tujuanLng, keterlambatanHari:x.keterlambatanHari, status:x.status }; }) };
 }
-export function simulate(twin, { produksi=0, energi=0, keterlambatan=0, permintaan=0 }) {
+function simulate(twin, { produksi=0, energi=0, keterlambatan=0, permintaan=0 }) {
   const t = twin.totals, run = (p, e, d, m) => {
     const sup = t.produksiKg*(1+p/100)*(1-Math.min(.9, .012*d)), dem = t.permintaanKg*(1+m/100), cost = t.biayaPerKg*(1+.35*e/100)*(1+.004*d),
       served = Math.min(sup, dem), fill = served/dem, risk = (1-fill)*60 + Math.max(0, cost/t.biayaPerKg-1)*40 + d*1.2;
@@ -55,7 +55,7 @@ function forecast(series, steps = 4) {
   return { prakiraan:Array.from({ length:steps }, (_, k) => Math.max(0, Math.round(a + b*(n+k)))), tren:b > 0 ? "naik" : "turun" };
 }
 
-export function mockApi(path, body, method, token) {
+function mockApi(path, body, method, token) {
   return new Promise((ok, no) => setTimeout(() => { try { ok(route(path, body, method, token)); } catch (e) { no(e); } }, 120));
 }
 function route(full, body, method, token) {
