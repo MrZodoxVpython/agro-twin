@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Prisma generated artifacts (regenerate during build)
+**/prisma/*.migration/**/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

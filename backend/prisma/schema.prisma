@@ -1,0 +1,92 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PETANI
+  KOPERASI
+  ADMIN
+}
+
+model Koperasi {
+  id         Int          @id @default(autoincrement())
+  nama       String
+  negara     String
+  lat        Float
+  lng        Float
+  users      User[]
+  produksi   Produksi[]
+  stok       Stok[]
+  distribusi Distribusi[]
+}
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  nama         String
+  role         Role
+  koperasiId   Int?
+  koperasi     Koperasi?  @relation(fields: [koperasiId], references: [id])
+  simulasi     Simulasi[]
+}
+model Komoditas {
+  id       Int        @id @default(autoincrement())
+  nama     String     @unique
+  produksi Produksi[]
+  stok     Stok[]
+  harga    Harga[]
+}
+model Produksi {
+  id          Int       @id @default(autoincrement())
+  tanggal     DateTime  @default(now())
+  jumlahKg    Float
+  koperasiId  Int
+  komoditasId Int
+  koperasi    Koperasi  @relation(fields: [koperasiId], references: [id])
+  komoditas   Komoditas @relation(fields: [komoditasId], references: [id])
+}
+model Stok {
+  id          Int       @id @default(autoincrement())
+  tanggal     DateTime  @default(now())
+  jumlahKg    Float
+  koperasiId  Int
+  komoditasId Int
+  koperasi    Koperasi  @relation(fields: [koperasiId], references: [id])
+  komoditas   Komoditas @relation(fields: [komoditasId], references: [id])
+}
+model Harga {
+  id           Int       @id @default(autoincrement())
+  tanggal      DateTime  @default(now())
+  negara       String
+  hargaPerKg   Float
+  permintaanKg Float
+  komoditasId  Int
+  komoditas    Komoditas @relation(fields: [komoditasId], references: [id])
+}
+model Distribusi {
+  id                Int      @id @default(autoincrement())
+  tanggal           DateTime @default(now())
+  koperasiId        Int
+  tujuan            String
+  tujuanLat         Float
+  tujuanLng         Float
+  jumlahKg          Float
+  biayaPerKg        Float    @default(3200)
+  keterlambatanHari Int      @default(0)
+  status            String   @default("DIKIRIM")
+  koperasi          Koperasi @relation(fields: [koperasiId], references: [id])
+}
+model Simulasi {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  nama      String
+  parameter Json
+  hasil     Json
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
